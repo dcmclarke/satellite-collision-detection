@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -36,18 +37,24 @@ public class NasaApiService {
 
     //fetches sat data from Space-Track.org api, gets latest 100 sats for testing
     public String fetchAndStoreSatellites() {
-        System.out.println("Starting NASA API fetch please wait...");
+        System.out.println("Starting Space-Track API fetch please wait...");
 
         try {
-            //create HTTP client with cookie handling
+            //create cookie manager
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setCookiePolicy(java.net.CookiePolicy.ACCEPT_ALL);
+            java.net.CookieHandler.setDefault(cookieManager);
+
+            //create HTTP client
             HttpClient client = HttpClient.newBuilder()
-                    .cookieHandler(new java.net.CookieManager())
+                    .cookieHandler(cookieManager)
                     .connectTimeout(Duration.ofSeconds(30))
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
                     .build();
 
-            //step 1: login
-            String loginUrl = apiUrl + "/ajaxauth/login";
-            System.out.println("Logging in to Space Track please wait...");
+            //step 1: login using /ajaxauth/login (like the Python client does)
+            String loginUrl = "https://www.space-track.org/ajaxauth/login";
+            System.out.println("Logging in to Space-Track...");
 
             String loginBody = "identity=" + URLEncoder.encode(username, StandardCharsets.UTF_8)
                     + "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8);
@@ -61,19 +68,23 @@ public class NasaApiService {
             HttpResponse<String> loginResponse = client.send(loginRequest, HttpResponse.BodyHandlers.ofString());
 
             System.out.println("Login response: " + loginResponse.statusCode());
+            System.out.println("Login body: " + loginResponse.body());
+            System.out.println("Cookies stored: " + cookieManager.getCookieStore().getCookies());
 
-            if (loginResponse.statusCode() != 200) {
-                return "Login failed with status: " + loginResponse.statusCode();
+            //check if login succeeded
+            if (loginResponse.body().contains("\"Login\":\"Failed\"")) {
+                return "Login failed - check your username and password";
             }
 
             System.out.println("Login successful!");
 
-            //step 2: get satellite data (cookies automatically sent by HttpClient)
-            String dataUrl = apiUrl + "/basicspacedata/query/class/tle_latest/ORDINAL/1/LIMIT/100/format/json";
-            System.out.println("Fetching satellite data please wait...");
+            //step 2: fetch satellite data
+            String dataUrl = "https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/LIMIT/100/format/json";
+            System.out.println("Fetching satellite data...");
 
             HttpRequest dataRequest = HttpRequest.newBuilder()
                     .uri(URI.create(dataUrl))
+                    .header("Accept", "application/json")
                     .GET()
                     .build();
 
@@ -86,16 +97,16 @@ public class NasaApiService {
                         + " - Response: " + dataResponse.body();
             }
 
-            System.out.println("Data received! Parsing please wait...");
+            System.out.println("Data received! Parsing...");
 
             int count = parseSatelliteData(dataResponse.body());
 
-            String result = "Successfully fetched " + count + " satellites from NASA!";
+            String result = "Successfully fetched " + count + " satellites from Space-Track!";
             System.out.println(result);
             return result;
 
         } catch (IOException | InterruptedException e) {
-            String error = "Error fetching NASA data: " + e.getMessage();
+            String error = "Error fetching Space-Track data: " + e.getMessage();
             System.err.println(error);
             e.printStackTrace();
             return error;

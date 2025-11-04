@@ -41,7 +41,7 @@ public class CollisionPrediction {
     public LocalDateTime getPredictedTime() { return predictedTime; }
     public void setPredictedTime(LocalDateTime predictedTime) { this.predictedTime = predictedTime; }
 
-    public double getMinimumDistance() { return probabilityScore; }
+    public double getMinimumDistance() { return minimumDistance; }
     public void setMinimumDistance(double minimumDistance) { this.minimumDistance = minimumDistance; }
 
     public int getProbabilityScore() { return probabilityScore; }

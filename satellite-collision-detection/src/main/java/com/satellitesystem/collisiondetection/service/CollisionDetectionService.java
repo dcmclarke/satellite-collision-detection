@@ -17,15 +17,17 @@ import java.util.List;
 
 @Service
 public class CollisionDetectionService {
-    //earth's radius in kms (standard reference value)
-    private static final double EARTH_RADIUS = 6371.8;
-
-    //collision screening threshold in kms (industry standard for LEO)
-    //based on operational practices in Lechtenberg (2019)
-    private static final double COLLISION_THRESHHOLD = 5.0;
-    //risk level thresholds
+   //distance thresholds (km)
+    private static final double EARTH_RADIUS = 6371.8;  //earth's radius in kms (standard reference value)
+    private static final double COLLISION_THRESHOLD = 5.0;
     private static final double CRITICAL_DISTANCE = 2.0; // <2km = critical
     private static final double WARNING_DISTANCE = 3.5; // <3.5km = warning
+
+    //probability score constants
+    private static final int PROBABILITY_CRITICAL = 90;
+    private static final int PROBABILITY_WARNING = 60;
+    private static final int PROBABILITY_INFO = 30;
+
 
     @Autowired
     private EmailService emailService;
@@ -63,11 +65,17 @@ public class CollisionDetectionService {
                 Satellite sat1 = satellites.get(i);
                 Satellite sat2 = satellites.get(j);
 
+
+                //TODO: could add velocity vectors for kinetic energy assessment (from lechtenberg paper)
+                //would enable catastrophic vs non catastrophic classification based on
+                //catastrophic if: (M_secondary * V_rel²) / (2 * M_primary) > 40,000 J/kg
+                //but would no use for it yet.
+
                 //calculate 3d distance between two satellites
                 double distance = calculateDistance(sat1, sat2);
 
                 //if satellites within collision threshold create prediction
-                if (distance < COLLISION_THRESHHOLD) {
+                if (distance < COLLISION_THRESHOLD) {
                     CollisionPrediction prediction = createPrediction(sat1, sat2, distance);
                     predictions.add(prediction);
 
@@ -149,17 +157,17 @@ public class CollisionDetectionService {
         //assign risk level & probability score based on distance
         if (distance < CRITICAL_DISTANCE) {
             prediction.setRiskLevel("CRITICAL");
-            prediction.setProbabilityScore(90);
+            prediction.setProbabilityScore(PROBABILITY_CRITICAL);
 
             //send email for critical risk
             emailService.sendCollisionAlert(prediction);
 
         } else if (distance < WARNING_DISTANCE) {
             prediction.setRiskLevel("WARNING");
-            prediction.setProbabilityScore(60);
+            prediction.setProbabilityScore(PROBABILITY_WARNING);
         } else {
             prediction.setRiskLevel("INFO");
-            prediction.setProbabilityScore(30);
+            prediction.setProbabilityScore(PROBABILITY_INFO);
         }
 
         //set status as active
@@ -207,7 +215,6 @@ public class CollisionDetectionService {
 
     //get count of active collision predictions
     public long getCollisionCount() {
-        return collisionRepository.count();
+        return collisionRepository.findByStatus("ACTIVE").size();
     }
-
 }

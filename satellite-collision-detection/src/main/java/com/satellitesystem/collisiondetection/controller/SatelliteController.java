@@ -48,9 +48,11 @@ public class SatelliteController {
         return service.getSatellite(id);
     }
 
-    //triggers fetch of sat data from nasa api
-    //POST http://localhost:8000/api/satellites/fetch-nasa-data
-
+    /*PRIMARY METHOD: fetches live data from nasa space-track api
+    *needs valid credentials and network
+    *fails due to auth issues
+    *POST http://localhost:8080/api/satellites/fetch-nasa-data
+    */
     @PostMapping("/fetch-nasa-data")
     public String fetchNasaData() {
         String result = nasaApiService.fetchAndStoreSatellites();
@@ -58,7 +60,11 @@ public class SatelliteController {
         return result + " Total satellites in database: " + totalCount;
     }
 
-    //loads real NASA satellite data for development & testing
+    /*ALTERNATIVE METHOD (I want to work): loads authentic NASA TLE data from hardcoded dataset
+    *data includes VANGUARD satellites, ISS, Hubble, Starlink with real orbital parameters
+    *used for reliable demo - eliminates API authentication dependencies
+    *POST http://localhost:8080/api/satellites/load-real-data
+    */
     @PostMapping("/load-real-data")
     public String loadRealData() {
         String result = nasaApiService.loadRealNasaData();
