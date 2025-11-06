@@ -16,7 +16,6 @@ public class Alert {
 
     private String alertLevel; //critical, warning, info
     private String message;
-    private String recipientEmail;
     private LocalDateTime sentAt;
     private boolean acknowledged;
 
@@ -26,11 +25,10 @@ public class Alert {
     }
 
     //constructor with fields
-    private Alert(CollisionPrediction prediction, String alertLevel, String message, String recipientEmail) {
+    private Alert(CollisionPrediction prediction, String alertLevel, String message) {
         this.prediction = prediction;
         this.alertLevel = alertLevel;
         this.message = message;
-        this.recipientEmail = recipientEmail;
         this.sentAt = LocalDateTime.now();
         this.acknowledged = false;
     }
@@ -47,9 +45,6 @@ public class Alert {
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
-
-    public String getRecipientEmail() { return recipientEmail; }
-    public void setRecipientEmail(String recipientEmail) { this.recipientEmail = recipientEmail; }
 
     public LocalDateTime getSentAt() { return sentAt; }
     public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }

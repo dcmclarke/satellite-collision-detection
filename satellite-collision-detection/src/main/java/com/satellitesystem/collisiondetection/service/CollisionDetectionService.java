@@ -58,12 +58,6 @@ public class CollisionDetectionService {
                 Satellite sat1 = satellites.get(i);
                 Satellite sat2 = satellites.get(j);
 
-
-                //TODO: could add velocity vectors for kinetic energy assessment (from lechtenberg paper)
-                //would enable catastrophic vs non catastrophic classification based on
-                //catastrophic if: (M_secondary * V_rel²) / (2 * M_primary) > 40,000 J/kg
-                //but would no use for it yet.
-
                 //calculate 3d distance between two satellites
                 double distance = calculateDistance(sat1, sat2);
 
@@ -174,7 +168,6 @@ public class CollisionDetectionService {
         alert.setPrediction(prediction);
         alert.setAlertLevel(prediction.getRiskLevel());
         alert.setMessage(buildAlertMessage(prediction));
-        alert.setRecipientEmail("operator@example.com"); //palceholder
         alert.setSentAt(LocalDateTime.now());
         alert.setAcknowledged(false);
         return alert;
