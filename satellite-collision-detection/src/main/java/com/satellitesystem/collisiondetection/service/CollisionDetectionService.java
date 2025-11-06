@@ -28,15 +28,8 @@ public class CollisionDetectionService {
     private static final int PROBABILITY_WARNING = 60;
     private static final int PROBABILITY_INFO = 30;
 
-
-    @Autowired
-    private EmailService emailService;
-
     @Autowired
     private AlertService alertService;
-
-    @Value("${alert.email.enabled:false}")
-    private boolean emailEnabled;
 
     @Autowired
     private SatelliteRepository satelliteRepository;
@@ -152,16 +145,12 @@ public class CollisionDetectionService {
 
         //set distance & time
         prediction.setMinimumDistance(distance);
-        prediction.setPredictedTime(LocalDateTime.now()); //current time for prediction
+        prediction.setPredictedTime(LocalDateTime.now());
 
-        //assign risk level & probability score based on distance
+        //assign risk level & probability
         if (distance < CRITICAL_DISTANCE) {
             prediction.setRiskLevel("CRITICAL");
             prediction.setProbabilityScore(PROBABILITY_CRITICAL);
-
-            //send email for critical risk
-            emailService.sendCollisionAlert(prediction);
-
         } else if (distance < WARNING_DISTANCE) {
             prediction.setRiskLevel("WARNING");
             prediction.setProbabilityScore(PROBABILITY_WARNING);
@@ -170,20 +159,12 @@ public class CollisionDetectionService {
             prediction.setProbabilityScore(PROBABILITY_INFO);
         }
 
-        //set status as active
         prediction.setStatus("ACTIVE");
+        prediction = collisionRepository.save(prediction);
 
-        //create & save alert
         Alert alert = createAlert(prediction);
         alertService.saveAlert(alert);
 
-        if (emailEnabled && distance < CRITICAL_DISTANCE) {
-            try {
-                emailService.sendCollisionAlert(prediction);
-            } catch (Exception e) {
-                System.err.println("Email sending failed, but alert saved: " + e.getMessage());
-            }
-        }
         return prediction;
     }
 
@@ -200,7 +181,7 @@ public class CollisionDetectionService {
     }
 
     private String buildAlertMessage(CollisionPrediction prediction) {
-        return String.format("COLLISION ALERT: % and %s are %.2f km apart (Risk: %s)",
+        return String.format("COLLISION ALERT: %s and %s are %.2f km apart (Risk: %s)",
                 prediction.getSatellite1().getName(),
                 prediction.getSatellite2().getName(),
                 prediction.getMinimumDistance(),

@@ -30,7 +30,6 @@ public class SatelliteController {
         List<CollisionPrediction> predictions = collisionDetectionService.detectCollisions();
         return "Collision detection complete! Found " + predictions.size() + " potential collisions. "
                 + "Total satellites: " + collisionDetectionService.getCollisionCount();
-
     }
 
     @GetMapping
@@ -49,8 +48,6 @@ public class SatelliteController {
     }
 
     /*PRIMARY METHOD: fetches live data from nasa space-track api
-    *needs valid credentials and network
-    *fails due to auth issues
     *POST http://localhost:8080/api/satellites/fetch-nasa-data
     */
     @PostMapping("/fetch-nasa-data")
@@ -60,14 +57,14 @@ public class SatelliteController {
         return result + " Total satellites in database: " + totalCount;
     }
 
-    /*ALTERNATIVE METHOD (I want to work): loads authentic NASA TLE data from hardcoded dataset
-    *data includes VANGUARD satellites, ISS, Hubble, Starlink with real orbital parameters
-    *used for reliable demo - eliminates API authentication dependencies
-    *POST http://localhost:8080/api/satellites/load-real-data
-    */
-    @PostMapping("/load-real-data")
-    public String loadRealData() {
-        String result = nasaApiService.loadRealNasaData();
+    /**
+     * BACKUP:loads embedded satellite data for demo if needed
+     * Use when Space-Track API is unavailable or offline dev
+     * POST http://localhost:8080/api/satellites/load-backup-data
+     */
+    @PostMapping("/load-backup-data")
+    public String loadBackupData() {
+        String result = nasaApiService.loadBackupData();
         long totalCount = nasaApiService.getSatelliteCount();
         return result + " Total satellites in database: " + totalCount;
     }

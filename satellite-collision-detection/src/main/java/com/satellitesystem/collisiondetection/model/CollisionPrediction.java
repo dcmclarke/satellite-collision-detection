@@ -36,7 +36,7 @@ public class CollisionPrediction {
     public void setSatellite1(Satellite satellite1) { this.satellite1 = satellite1; }
 
     public Satellite getSatellite2() { return satellite2; }
-    public void setSatellite2(Satellite satellite1) { this.satellite2 = satellite2; }
+    public void setSatellite2(Satellite satellite2) { this.satellite2 = satellite2; }
 
     public LocalDateTime getPredictedTime() { return predictedTime; }
     public void setPredictedTime(LocalDateTime predictedTime) { this.predictedTime = predictedTime; }
