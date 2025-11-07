@@ -14,12 +14,7 @@ public class SatelliteService {
 
     public List<Satellite> getAllSatellites() {
         return repository.findAll();
-        //TODO: add pagination for large datasets (1k+ sats)
-        //TODO: cache frequently accessed sats for better performance
     }
-
-    //TODO: next week add method to fetch from NASA API
-    //TODO: add method to filter by altitude range
 
     public Satellite saveSatellite(Satellite satellite) {
         return repository.save(satellite);
