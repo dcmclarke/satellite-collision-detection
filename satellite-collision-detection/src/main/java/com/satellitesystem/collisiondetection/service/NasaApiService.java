@@ -79,7 +79,8 @@ public class NasaApiService {
             System.out.println("Login successful!");
 
             //step 2: fetch satellite data
-            String dataUrl = "https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/LIMIT/100/format/json";
+            //get 500 active satellites (updated in last 30 days)
+            String dataUrl = "https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/EPOCH/>now-30/LIMIT/500/format/json";
             System.out.println("Fetching satellite data...");
 
             HttpRequest dataRequest = HttpRequest.newBuilder()
