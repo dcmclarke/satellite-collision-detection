@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//service for detecting potential satellite collisions using distance based screening. Conjunction detectio methods based on Burgis et al. (2022) & operational thresholds Lechtenberg (2019)
+//service for detecting potential satellite collisions using distance based screening, conjunction detectio methods based on the two studies (Burgism Lechtenberg)
 
 @Service
 public class CollisionDetectionService {
@@ -84,7 +84,7 @@ public class CollisionDetectionService {
 
     //now calculating 3D Euclidean distance between two satellites
     //1. Convert both satellite's geodetic coordinates to cartesian (XYZ)
-    //2. Apply pythagorean theorem in 3D space: distance = sqrt((x2-x1)^2 + (y2-yq)^2 + (z2-z1)^2)
+    //2. Apply pythagorean theorem in 3D space: distance = sqrt((x2-x1)^2 + (y2-yq)^2 +(z2-z1)^2)
     private double calculateDistance(Satellite sat1, Satellite sat2) {
         //convert both satellites to 3D cartesian coords
         double[] pos1 = latLonAltToXYZ(sat1);
@@ -95,7 +95,7 @@ public class CollisionDetectionService {
         double dy = pos2[1] - pos1[1];
         double dz = pos2[2] - pos1[2];
 
-        //pythag theorem in 3D (adapted from Baeldung java distance calculations)
+        //pythag theorem in 3D (based on Baeldung java distance maths)
         //gives straight line distance through 3D space
         return Math.sqrt(dx*dx + dy*dy + dz*dz);
     }
@@ -127,8 +127,8 @@ public class CollisionDetectionService {
     //creating CollisionPrediction object with risk assessment
     //risk levels based on distance:
     //CRITICAL (<2km): High prob of collision
-    //WARNING (<2-3.5km): Moderate risk, requires monitoring
-    //INFO (3.5-5km): Low risk, informational alert
+    //WARNING(<2-3.5km): Moderate risk, needs monitoring
+    //INFO (3.5-5km): Low risk, info alert
 
     private CollisionPrediction createPrediction(Satellite sat1, Satellite sat2, double distance) {
         CollisionPrediction prediction = new CollisionPrediction();
