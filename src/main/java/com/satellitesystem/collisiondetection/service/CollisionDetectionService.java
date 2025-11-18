@@ -8,6 +8,7 @@ import com.satellitesystem.collisiondetection.model.Alert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.satellitesystem.collisiondetection.repository.AlertRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,10 +38,21 @@ public class CollisionDetectionService {
     @Autowired
     private CollisionPredictionRepository collisionRepository;
 
+    @Autowired
+    private AlertRepository alertRepository;
+
     //main method detecitn all potential collisions in satellite population
     //checks every pair of satellites for proximity within collision threshold
     public List<CollisionPrediction> detectCollisions() {
         System.out.println("Starting collision detection...");
+
+        //delete alerts first (they ref collision predictions)
+        System.out.println("Clearing old alerts...");
+        alertRepository.deleteAll();
+
+        //delete collision predictions
+        System.out.println("Clearing old predictions to avoid duplicates...");
+        collisionRepository.deleteAll();
 
         //get all satellites from db
         List<Satellite> satellites = satelliteRepository.findAll();
