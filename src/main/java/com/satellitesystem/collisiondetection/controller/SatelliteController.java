@@ -67,6 +67,11 @@ public class SatelliteController {
     */
     @PostMapping("/fetch-nasa-data")
     public String fetchNasaData() {
+        //clear all data first to fix the satellite stacking issue
+        alertRepository.deleteAll();
+        collisionPredictionRepository.deleteAll();
+        satelliteRepository.deleteAll();
+
         String result = nasaApiService.fetchAndStoreSatellites();
         long totalCount = nasaApiService.getSatelliteCount();
         return result + " Total satellites in database: " + totalCount;
@@ -80,6 +85,11 @@ public class SatelliteController {
 
     @PostMapping("/load-backup-data")
     public String loadBackupData() {
+        //clear all data first to fix the satellite stacking issue
+        alertRepository.deleteAll();
+        collisionPredictionRepository.deleteAll();
+        satelliteRepository.deleteAll();
+
         String result = nasaApiService.loadBackupData();
         long totalCount = nasaApiService.getSatelliteCount();
         return result + " Total satellites in database: " + totalCount;
